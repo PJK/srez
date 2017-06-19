@@ -7,6 +7,7 @@ import os.path
 import random
 import numpy as np
 import numpy.random
+import scipy.misc
 
 import tensorflow as tf
 
@@ -223,6 +224,23 @@ def _process(input):
     feed_dict = {td.gene_minput: test_feature}
     gene_output = td.sess.run(td.gene_moutput, feed_dict=feed_dict)
 
+    clipped = tf.maximum(tf.minimum(gene_output, 1.0), 0.0)
+
+    out = td.sess.run(clipped)
+
+    print(out.shape)
+
+    clipped = tf.maximum(tf.minimum(gene_output, 1.0), 0.0)
+
+    image = tf.concat([clipped], 2)
+
+    image = image[0:1, :, :, :]
+    image = tf.concat([image[i, :, :, :] for i in range(1)], 0)
+    image = td.sess.run(image)
+
+    print(image.shape)
+
+    scipy.misc.toimage(image, cmin=0., cmax=1.).save("test.jpg")
 
 
 def main(argv=None):
