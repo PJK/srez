@@ -183,6 +183,8 @@ def _train():
 
 def main(argv=None):
     # Training or showing off?
+    tf.ConfigProto(allow_soft_placement=True)
+    
     with tf.device(FLAGS.device):
         if FLAGS.run == 'demo':
             _demo()
