@@ -64,6 +64,9 @@ tf.app.flags.DEFINE_string('train_dir', 'train',
 tf.app.flags.DEFINE_integer('train_time', 20,
                             "Time in minutes to train the model")
 
+tf.app.flags.DEFINE_string('device', 'cpu:0',
+                           "TF device to use. Will be forced")
+
 def prepare_dirs(delete_train_dir=False):
     # Create checkpoint dir (do not delete anything)
     if not tf.gfile.Exists(FLAGS.checkpoint_dir):
@@ -180,11 +183,11 @@ def _train():
 
 def main(argv=None):
     # Training or showing off?
-
-    if FLAGS.run == 'demo':
-        _demo()
-    elif FLAGS.run == 'train':
-        _train()
+    with tf.device(FLAGS.device):
+        if FLAGS.run == 'demo':
+            _demo()
+        elif FLAGS.run == 'train':
+            _train()
 
 if __name__ == '__main__':
   tf.app.run()
