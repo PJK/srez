@@ -181,9 +181,55 @@ def _train():
     train_data = TrainData(locals())
     srez_train.train_model(train_data)
 
+def _process(input):
+    # Load checkpoint
+    if not tf.gfile.IsDirectory(FLAGS.checkpoint_dir):
+        raise FileNotFoundError("Could not find folder `%s'" % (FLAGS.checkpoint_dir,))
+
+    # Setup global tensorflow state
+    sess, summary_writer = setup_tensorflow()
+
+    # Prepare directories
+    filenames = prepare_dirs(delete_train_dir=False)
+
+    # Setup async input queues
+    features, labels = srez_input.setup_inputs(sess, filenames)
+
+    # Create and initialize model
+    [gene_minput, gene_moutput,
+     gene_output, gene_var_list,
+     disc_real_output, disc_fake_output, disc_var_list] = \
+            srez_model.create_model(sess, features, labels)
+
+    # Restore variables from checkpoint
+    saver = tf.train.Saver()
+    filename = 'checkpoint_new.txt'
+    filename = os.path.join(FLAGS.checkpoint_dir, filename)
+    saver.restore(sess, filename)
+
+    print("Loaded checkpoint")
+    print(input)
+
+    test_features, test_labels = srez_input.setup_inputs(sess, [input])
+
+    # I have no idea what I'm doing...
+    td = TrainData(locals())
+
+    # lrval = FLAGS.learning_rate_start
+
+    # feed_dict = {td.learning_rate: lrval}
+    test_feature, test_label = td.sess.run([td.test_features, td.test_labels])
+
+    feed_dict = {td.gene_minput: test_feature}
+    gene_output = td.sess.run(td.gene_moutput, feed_dict=feed_dict)
+
+
+
 def main(argv=None):
     with tf.device(FLAGS.device):
-        if FLAGS.run == 'demo':
+        if FLAGS.run == 'process':
+            _process(argv[1])
+        elif FLAGS.run == 'demo':
             _demo()
         elif FLAGS.run == 'train':
             _train()
