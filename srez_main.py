@@ -93,7 +93,7 @@ def prepare_dirs(delete_train_dir=False):
 
 def setup_tensorflow():
     # Create session
-    config = tf.ConfigProto(log_device_placement=FLAGS.log_device_placement)
+    config = tf.ConfigProto(log_device_placement=FLAGS.log_device_placement, allow_soft_placement=True)
     sess = tf.Session(config=config)
 
     # Initialize rng with a deterministic seed
@@ -182,9 +182,6 @@ def _train():
     srez_train.train_model(train_data)
 
 def main(argv=None):
-    # Training or showing off?
-    tf.ConfigProto(allow_soft_placement=True)
-    
     with tf.device(FLAGS.device):
         if FLAGS.run == 'demo':
             _demo()
