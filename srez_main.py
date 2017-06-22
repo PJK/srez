@@ -213,6 +213,7 @@ def _process(input):
 
     test_features, test_labels = srez_input.setup_inputs(sess, [input])
 
+
     # I have no idea what I'm doing...
     td = TrainData(locals())
 
@@ -224,22 +225,45 @@ def _process(input):
     feed_dict = {td.gene_minput: test_feature}
     gene_output = td.sess.run(td.gene_moutput, feed_dict=feed_dict)
 
+    # TODO Unhardcode me :(
+    size = [64, 64]
+
+    nearest = tf.image.resize_nearest_neighbor(test_feature, size)
+    nearest = tf.maximum(tf.minimum(nearest, 1.0), 0.0)
+
+    bicubic = tf.image.resize_bicubic(test_feature, size)
+    bicubic = tf.maximum(tf.minimum(bicubic, 1.0), 0.0)
+
     clipped = tf.maximum(tf.minimum(gene_output, 1.0), 0.0)
 
-    out = td.sess.run(clipped)
+    image = tf.concat([nearest, bicubic, clipped, test_label], 2)
 
-    print(out.shape)
+    max_samples = 8
 
-    clipped = tf.maximum(tf.minimum(gene_output, 1.0), 0.0)
-
-    image = tf.concat([clipped], 2)
-
-    image = image[0:1, :, :, :]
-    image = tf.concat([image[i, :, :, :] for i in range(1)], 0)
+    image = image[0:max_samples, :, :, :]
+    image = tf.concat([image[i, :, :, :] for i in range(max_samples)], 0)
     image = td.sess.run(image)
 
-    print(image.shape)
+    # clipped = tf.maximum(tf.minimum(gene_output, 1.0), 0.0)
+    #
+    # image = tf.concat([clipped], 2)
+    #
+    # image = td.sess.run(image)
+    # print(image.shape)
+    #
+    # # image = image[0:1, :, :, :]
+    # image = tf.concat([image[i, :, :, :] for i in range(16)], 0)
+    # image = td.sess.run(image)
+    # print(image.shape)
+    #
+    # scipy.misc.toimage(image, cmin=0., cmax=1.).save("test.jpg")
 
+    # image = image[0:1, :, :, :]
+    # image = tf.concat([image[i, :, :, :] for i in range(1)], 0)
+    # image = td.sess.run(image)
+    #
+    # print(image.shape)
+    #
     scipy.misc.toimage(image, cmin=0., cmax=1.).save("test.jpg")
 
 
