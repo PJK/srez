@@ -244,26 +244,18 @@ def _process(input):
     image = tf.concat([image[i, :, :, :] for i in range(max_samples)], 0)
     image = td.sess.run(image)
 
-    # clipped = tf.maximum(tf.minimum(gene_output, 1.0), 0.0)
-    #
-    # image = tf.concat([clipped], 2)
-    #
-    # image = td.sess.run(image)
-    # print(image.shape)
-    #
-    # # image = image[0:1, :, :, :]
-    # image = tf.concat([image[i, :, :, :] for i in range(16)], 0)
-    # image = td.sess.run(image)
-    # print(image.shape)
-    #
-    # scipy.misc.toimage(image, cmin=0., cmax=1.).save("test.jpg")
+    clipped = tf.maximum(tf.minimum(gene_output, 1.0), 0.0)
+
+    image = tf.concat([clipped], 2)
+
+    image = td.sess.run(image)
+    print(image.shape)
 
     # image = image[0:1, :, :, :]
-    # image = tf.concat([image[i, :, :, :] for i in range(1)], 0)
-    # image = td.sess.run(image)
-    #
-    # print(image.shape)
-    #
+    image = tf.concat([image[i, :, :, :] for i in range(1)], 0)
+    image = td.sess.run(image)
+    print(image.shape)
+
     scipy.misc.toimage(image, cmin=0., cmax=1.).save("test.jpg")
 
 

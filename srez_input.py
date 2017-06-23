@@ -35,7 +35,7 @@ def setup_inputs(sess, filenames, image_size=None, capacity_factor=3):
         image = tf.image.resize_area(image, [image_size, image_size])
 
     # The feature is simply a Kx downscaled version
-    K = 4
+    K = 2
     downsampled = tf.image.resize_area(image, [image_size//K, image_size//K])
 
     feature = tf.reshape(downsampled, [image_size//K, image_size//K, 3])
